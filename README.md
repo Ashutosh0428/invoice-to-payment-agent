@@ -472,6 +472,10 @@ matching ran, not because matching failed. Those three need `--mode e2e` against
 compose stack, which drives each document through the real API and reads back the run,
 the match outcome and the posted journal.
 
+The committed report predates the prompt fix that taught the model to read a line labelled
+"Net amount" as `subtotal`, which is why `subtotal` sits at 28.6% there while the other twelve
+fields score 100%. Re-running `make evaluate` regenerates it with that fix applied.
+
 The committed report is an `extraction` run, produced on an 8 GB M2 with Docling pinned to
 CPU (`DOCLING_DEVICE=cpu`) — on that machine Docling's vision models and a resident
 `llama3.1:8b` do not fit in the Metal budget together. The parse and extract timings in the

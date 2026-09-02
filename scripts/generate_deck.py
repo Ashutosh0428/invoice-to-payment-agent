@@ -820,31 +820,33 @@ def slide_evaluation(prs: Presentation, metrics: dict[str, Any]) -> None:
     processed = metrics.get("documents_processed", 0)
     total = metrics.get("documents_total", 0)
 
+    # Matching and STP are measured only in e2e mode. Rendering an unmeasured metric as
+    # "0%" reads as a failure on a slide, so an empty denominator shows as "--".
+    measured = bool(matching.get("outcomes_total"))
     tiles = [
         (pct(extraction.get("field_accuracy")), "Extraction\nfield accuracy", TEAL),
         (pct(extraction.get("line_item_accuracy")), "Line item\naccuracy", TEAL),
-        (pct(matching.get("match_rate")), "Match\nrate", NAVY),
-        (pct(matching.get("exception_detection_rate")), "Exception\ndetection rate", AMBER),
-        (pct(stp.get("straight_through_rate")), "Straight-through\nrate", NAVY),
+        (pct(matching.get("match_rate")) if measured else "--", "Match\nrate", NAVY),
+        (
+            pct(matching.get("exception_detection_rate")) if measured else "--",
+            "Exception\ndetection rate",
+            AMBER,
+        ),
+        (pct(stp.get("stp_rate")) if measured else "--", "Straight-through\nrate", NAVY),
     ]
     for index, (value, caption, colour) in enumerate(tiles):
         metric_tile(slide, 0.55 + index * 2.5, 1.85, 2.3, 1.55, value, caption, colour)
 
-    label(
-        slide,
-        0.6,
-        3.55,
-        12.2,
-        0.35,
-        f"{processed} of {total} sample documents scored  |  "
-        f"mode: {metrics.get('mode', 'extraction')}  |  "
-        f"model: llama3.1:8b via Ollama"
+    caption = (
+        f"{processed} of {total} sample documents scored, "
+        f"{metrics.get('documents_failed', 0)} failed  |  "
+        f"mode: {metrics.get('mode', 'extraction')}  |  model: llama3.1:8b via Ollama"
         if metrics
-        else "Run: python -m evaluation.run_evaluation --mode extraction",
-        size=11,
-        color=MUTED,
+        else "Run: python -m evaluation.run_evaluation --mode extraction"
     )
-
+    if metrics and not measured:
+        caption += "    (--  measured only in e2e mode, against the running stack)"
+    label(slide, 0.6, 3.55, 12.2, 0.35, caption, size=11, color=MUTED)
     bullets(
         slide,
         0.7,

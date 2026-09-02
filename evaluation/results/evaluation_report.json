@@ -1,0 +1,134 @@
+{
+  "documents_total": 7,
+  "documents_processed": 7,
+  "documents_failed": 0,
+  "extraction": {
+    "field_accuracy": 0.9451,
+    "fields_correct": 86,
+    "fields_total": 91,
+    "line_item_accuracy": 1.0,
+    "lines_correct": 9,
+    "lines_expected": 9,
+    "mean_confidence": 0.8379,
+    "mean_parse_seconds": 81.01,
+    "mean_extract_seconds": 156.6
+  },
+  "matching": {
+    "match_rate": 0.0,
+    "exception_detection_rate": 0.0,
+    "outcomes_correct": 0,
+    "outcomes_total": 0
+  },
+  "straight_through": {
+    "stp_rate": 0.0,
+    "expected_stp_rate": 0.0,
+    "stp_decision_accuracy": 0.0,
+    "auto_posted": 0
+  },
+  "per_field_accuracy": {
+    "currency": 1.0,
+    "due_date": 1.0,
+    "invoice_date": 1.0,
+    "invoice_number": 1.0,
+    "line_count": 1.0,
+    "payment_terms": 1.0,
+    "purchase_order_number": 1.0,
+    "subtotal": 0.2857,
+    "tax_amount": 1.0,
+    "total_amount": 1.0,
+    "vendor_iban": 1.0,
+    "vendor_name": 1.0,
+    "vendor_tax_id": 1.0
+  },
+  "mode": "extraction",
+  "generated_at": "2026-09-02T16:45:50.720370+00:00",
+  "documents": [
+    {
+      "id": "clean_three_way",
+      "file": "INV-2026-0871_contoso.pdf",
+      "field_accuracy": 0.9231,
+      "line_accuracy": 1.0,
+      "confidence": 0.825,
+      "parse_seconds": 14.76,
+      "extract_seconds": 227.98,
+      "failed_fields": [
+        "subtotal"
+      ],
+      "error": null
+    },
+    {
+      "id": "price_variance",
+      "file": "INV-2026-0872_fabrikam.pdf",
+      "field_accuracy": 0.9231,
+      "line_accuracy": 1.0,
+      "confidence": 0.81,
+      "parse_seconds": 80.83,
+      "extract_seconds": 140.34,
+      "failed_fields": [
+        "subtotal"
+      ],
+      "error": null
+    },
+    {
+      "id": "goods_receipt_shortfall",
+      "file": "INV-2026-0873_northwind.pdf",
+      "field_accuracy": 0.9231,
+      "line_accuracy": 1.0,
+      "confidence": 0.825,
+      "parse_seconds": 189.84,
+      "extract_seconds": 117.43,
+      "failed_fields": [
+        "subtotal"
+      ],
+      "error": null
+    },
+    {
+      "id": "clean_two_way",
+      "file": "INV-2026-0874_adventureworks.pdf",
+      "field_accuracy": 0.9231,
+      "line_accuracy": 1.0,
+      "confidence": 0.81,
+      "parse_seconds": 80.56,
+      "extract_seconds": 134.7,
+      "failed_fields": [
+        "subtotal"
+      ],
+      "error": null
+    },
+    {
+      "id": "over_auto_post_ceiling",
+      "file": "INV-2026-0875_tailspin.pdf",
+      "field_accuracy": 0.9231,
+      "line_accuracy": 1.0,
+      "confidence": 0.675,
+      "parse_seconds": 68.76,
+      "extract_seconds": 186.41,
+      "failed_fields": [
+        "subtotal"
+      ],
+      "error": null
+    },
+    {
+      "id": "missing_po_unknown_vendor",
+      "file": "INV-2026-0876_litware.pdf",
+      "field_accuracy": 1.0,
+      "line_accuracy": 1.0,
+      "confidence": 0.935,
+      "parse_seconds": 79.38,
+      "extract_seconds": 134.05,
+      "failed_fields": [],
+      "error": null
+    },
+    {
+      "id": "duplicate_submission",
+      "file": "INV-2026-0871_contoso_resubmission.pdf",
+      "field_accuracy": 1.0,
+      "line_accuracy": 1.0,
+      "confidence": 0.985,
+      "parse_seconds": 52.95,
+      "extract_seconds": 155.28,
+      "failed_fields": [],
+      "error": null
+    }
+  ]
+}
