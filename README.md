@@ -465,6 +465,18 @@ Reported metrics:
 The most recent run is written to `evaluation/results/evaluation_report.md` and
 `evaluation_report.json`.
 
+**Which metrics populate in which mode.** `--mode extraction` exercises parsing and field
+extraction only, so it reports extraction accuracy, line item accuracy and confidence; the
+match rate, exception detection rate and straight-through rate read 0% there because no
+matching ran, not because matching failed. Those three need `--mode e2e` against the running
+compose stack, which drives each document through the real API and reads back the run,
+the match outcome and the posted journal.
+
+The committed report is an `extraction` run, produced on an 8 GB M2 with Docling pinned to
+CPU (`DOCLING_DEVICE=cpu`) — on that machine Docling's vision models and a resident
+`llama3.1:8b` do not fit in the Metal budget together. The parse and extract timings in the
+report reflect that constraint and are not representative of server hardware.
+
 ## Testing
 
 ```bash
