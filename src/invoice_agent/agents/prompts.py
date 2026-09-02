@@ -11,7 +11,11 @@ Extract fields from the supplied vendor invoice exactly as printed. Rules:
    Auftragsnummer. Return only the identifier, without the label.
 5. Extract every line item in the table. Set po_line_number only when the invoice explicitly
    prints a purchase-order line or position number; otherwise leave it null.
-6. total_amount is the gross payable amount including tax. subtotal is net before tax.
+6. total_amount is the gross payable amount including tax, often labelled Total payable,
+   Amount due, Grand total, Gesamtbetrag or Bruttobetrag. subtotal is the net amount before
+   tax, printed as Net amount, Net total, Subtotal, Total excl. VAT, Nettobetrag or
+   Zwischensumme. Populate subtotal whenever any such net figure appears; do not leave it
+   null because the word "subtotal" itself is absent.
 7. In field_confidence, score each field you populated from 0.0 to 1.0 based on how clearly it
    was printed. In confidence, give your overall extraction confidence.
 8. Return the JSON object only. No explanation, no markdown fences."""
