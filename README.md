@@ -1,5 +1,9 @@
 # Agentic Invoice-to-Payment Automation
 
+[![CI](https://github.com/Ashutosh0428/invoice-to-payment-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Ashutosh0428/invoice-to-payment-agent/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-1F5C8B.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1F5C8B.svg)](LICENSE)
+
 An AI agent for a finance back office. It reads vendor invoices out of a shared mailbox,
 extracts them with Docling, resolves the vendor against ERP master data, runs a 2-way or
 3-way match against the purchase order and goods receipt, and posts the payment journal to
