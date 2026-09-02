@@ -1,0 +1,306 @@
+"""Seeded ERP master data. Deterministic on purpose: the evaluation harness asserts against it."""
+
+from __future__ import annotations
+
+from datetime import date
+from decimal import Decimal
+from typing import Any
+
+VENDORS: list[dict[str, Any]] = [
+    {
+        "vendor_id": "V-10001",
+        "name": "Contoso Supplies GmbH",
+        "tax_id": "DE811907980",
+        "iban": "DE89370400440532013000",
+        "payment_terms": "NET30",
+        "currency": "EUR",
+        "aliases": ["Contoso Supplies", "Contoso GmbH"],
+        "blocked": False,
+    },
+    {
+        "vendor_id": "V-10002",
+        "name": "Fabrikam Industrial AG",
+        "tax_id": "DE114203847",
+        "iban": "DE02120300000000202051",
+        "payment_terms": "NET45",
+        "currency": "EUR",
+        "aliases": ["Fabrikam Industrial", "Fabrikam AG"],
+        "blocked": False,
+    },
+    {
+        "vendor_id": "V-10003",
+        "name": "Northwind Logistics BV",
+        "tax_id": "NL004495445B01",
+        "iban": "NL91ABNA0417164300",
+        "payment_terms": "NET30",
+        "currency": "EUR",
+        "aliases": ["Northwind Logistics", "Northwind BV"],
+        "blocked": False,
+    },
+    {
+        "vendor_id": "V-10004",
+        "name": "Adventure Works Ltd",
+        "tax_id": "GB123456789",
+        "iban": "GB29NWBK60161331926819",
+        "payment_terms": "NET14",
+        "currency": "EUR",
+        "aliases": ["Adventure Works"],
+        "blocked": False,
+    },
+    {
+        "vendor_id": "V-10005",
+        "name": "Tailspin Components SA",
+        "tax_id": "FR40303265045",
+        "iban": "FR1420041010050500013M02606",
+        "payment_terms": "NET60",
+        "currency": "EUR",
+        "aliases": ["Tailspin Components", "Tailspin SA"],
+        "blocked": False,
+    },
+]
+
+PURCHASE_ORDERS: list[dict[str, Any]] = [
+    {
+        "po_number": "PO-4500001",
+        "vendor_id": "V-10001",
+        "vendor_name": "Contoso Supplies GmbH",
+        "company_code": "1000",
+        "currency": "EUR",
+        "order_date": date(2026, 7, 2),
+        "status": "open",
+        "goods_receipt_required": True,
+        "net_amount": Decimal("10730.00"),
+        "tax_amount": Decimal("2038.70"),
+        "gross_amount": Decimal("12768.70"),
+        "lines": [
+            {
+                "line_number": 10,
+                "material_code": "MAT-A100",
+                "description": "Steel bracket, galvanised, 120mm",
+                "quantity_ordered": Decimal("500"),
+                "quantity_received": Decimal("500"),
+                "quantity_invoiced": Decimal("0"),
+                "unit": "EA",
+                "unit_price": Decimal("14.50"),
+                "line_total": Decimal("7250.00"),
+            },
+            {
+                "line_number": 20,
+                "material_code": "MAT-A210",
+                "description": "Hex bolt M12x60 stainless",
+                "quantity_ordered": Decimal("1200"),
+                "quantity_received": Decimal("1200"),
+                "quantity_invoiced": Decimal("0"),
+                "unit": "EA",
+                "unit_price": Decimal("2.90"),
+                "line_total": Decimal("3480.00"),
+            },
+        ],
+    },
+    {
+        "po_number": "PO-4500002",
+        "vendor_id": "V-10002",
+        "vendor_name": "Fabrikam Industrial AG",
+        "company_code": "1000",
+        "currency": "EUR",
+        "order_date": date(2026, 7, 8),
+        "status": "open",
+        "goods_receipt_required": True,
+        "net_amount": Decimal("8400.00"),
+        "tax_amount": Decimal("1596.00"),
+        "gross_amount": Decimal("9996.00"),
+        "lines": [
+            {
+                "line_number": 10,
+                "material_code": "MAT-B400",
+                "description": "Hydraulic pump assembly HP-400",
+                "quantity_ordered": Decimal("12"),
+                "quantity_received": Decimal("12"),
+                "quantity_invoiced": Decimal("0"),
+                "unit": "EA",
+                "unit_price": Decimal("700.00"),
+                "line_total": Decimal("8400.00"),
+            }
+        ],
+    },
+    {
+        "po_number": "PO-4500003",
+        "vendor_id": "V-10003",
+        "vendor_name": "Northwind Logistics BV",
+        "company_code": "1000",
+        "currency": "EUR",
+        "order_date": date(2026, 7, 11),
+        "status": "open",
+        "goods_receipt_required": True,
+        "net_amount": Decimal("6000.00"),
+        "tax_amount": Decimal("1140.00"),
+        "gross_amount": Decimal("7140.00"),
+        "lines": [
+            {
+                "line_number": 10,
+                "material_code": "SRV-FRT",
+                "description": "Road freight Rotterdam-Munich, per shipment",
+                "quantity_ordered": Decimal("30"),
+                "quantity_received": Decimal("24"),
+                "quantity_invoiced": Decimal("0"),
+                "unit": "SHP",
+                "unit_price": Decimal("200.00"),
+                "line_total": Decimal("6000.00"),
+            }
+        ],
+    },
+    {
+        "po_number": "PO-4500004",
+        "vendor_id": "V-10004",
+        "vendor_name": "Adventure Works Ltd",
+        "company_code": "1000",
+        "currency": "EUR",
+        "order_date": date(2026, 7, 15),
+        "status": "open",
+        "goods_receipt_required": False,
+        "net_amount": Decimal("3600.00"),
+        "tax_amount": Decimal("684.00"),
+        "gross_amount": Decimal("4284.00"),
+        "lines": [
+            {
+                "line_number": 10,
+                "material_code": "SRV-CONS",
+                "description": "SAP S/4HANA advisory, senior consultant day rate",
+                "quantity_ordered": Decimal("4"),
+                "quantity_received": Decimal("0"),
+                "quantity_invoiced": Decimal("0"),
+                "unit": "DAY",
+                "unit_price": Decimal("900.00"),
+                "line_total": Decimal("3600.00"),
+            }
+        ],
+    },
+    {
+        "po_number": "PO-4500005",
+        "vendor_id": "V-10005",
+        "vendor_name": "Tailspin Components SA",
+        "company_code": "1000",
+        "currency": "EUR",
+        "order_date": date(2026, 7, 21),
+        "status": "open",
+        "goods_receipt_required": True,
+        "net_amount": Decimal("40290.00"),
+        "tax_amount": Decimal("7655.10"),
+        "gross_amount": Decimal("47945.10"),
+        "lines": [
+            {
+                "line_number": 10,
+                "material_code": "MAT-C900",
+                "description": "CNC machined housing, aluminium 6061",
+                "quantity_ordered": Decimal("340"),
+                "quantity_received": Decimal("340"),
+                "quantity_invoiced": Decimal("0"),
+                "unit": "EA",
+                "unit_price": Decimal("118.50"),
+                "line_total": Decimal("40290.00"),
+            }
+        ],
+    },
+]
+
+GOODS_RECEIPTS: list[dict[str, Any]] = [
+    {
+        "gr_number": "GR-5000001",
+        "po_number": "PO-4500001",
+        "posting_date": date(2026, 7, 18),
+        "lines": [
+            {
+                "po_line_number": 10,
+                "material_code": "MAT-A100",
+                "quantity_received": Decimal("500"),
+                "unit": "EA",
+                "receipt_date": date(2026, 7, 18),
+            },
+            {
+                "po_line_number": 20,
+                "material_code": "MAT-A210",
+                "quantity_received": Decimal("1200"),
+                "unit": "EA",
+                "receipt_date": date(2026, 7, 18),
+            },
+        ],
+    },
+    {
+        "gr_number": "GR-5000002",
+        "po_number": "PO-4500002",
+        "posting_date": date(2026, 7, 22),
+        "lines": [
+            {
+                "po_line_number": 10,
+                "material_code": "MAT-B400",
+                "quantity_received": Decimal("12"),
+                "unit": "EA",
+                "receipt_date": date(2026, 7, 22),
+            },
+        ],
+    },
+    {
+        "gr_number": "GR-5000003",
+        "po_number": "PO-4500003",
+        "posting_date": date(2026, 7, 25),
+        "lines": [
+            {
+                "po_line_number": 10,
+                "material_code": "SRV-FRT",
+                "quantity_received": Decimal("24"),
+                "unit": "SHP",
+                "receipt_date": date(2026, 7, 25),
+            },
+        ],
+    },
+    {
+        "gr_number": "GR-5000005",
+        "po_number": "PO-4500005",
+        "posting_date": date(2026, 8, 3),
+        "lines": [
+            {
+                "po_line_number": 10,
+                "material_code": "MAT-C900",
+                "quantity_received": Decimal("340"),
+                "unit": "EA",
+                "receipt_date": date(2026, 8, 3),
+            },
+        ],
+    },
+]
+
+AR_ITEMS: list[dict[str, Any]] = [
+    {
+        "ar_item_id": "AR-90001",
+        "invoice_number": "SI-2026-0431",
+        "customer_id": "C-20001",
+        "customer_name": "Globex Manufacturing SE",
+        "currency": "EUR",
+        "open_amount": Decimal("18400.00"),
+        "original_amount": Decimal("18400.00"),
+        "due_date": date(2026, 8, 30),
+        "status": "open",
+    },
+    {
+        "ar_item_id": "AR-90002",
+        "invoice_number": "SI-2026-0448",
+        "customer_id": "C-20001",
+        "customer_name": "Globex Manufacturing SE",
+        "currency": "EUR",
+        "open_amount": Decimal("7250.00"),
+        "original_amount": Decimal("7250.00"),
+        "due_date": date(2026, 9, 6),
+        "status": "open",
+    },
+    {
+        "ar_item_id": "AR-90003",
+        "invoice_number": "SI-2026-0455",
+        "customer_id": "C-20002",
+        "customer_name": "Initech Systems Oy",
+        "currency": "EUR",
+        "open_amount": Decimal("4980.00"),
+        "original_amount": Decimal("4980.00"),
+        "due_date": date(2026, 9, 12),
+        "status": "open",
+    },
+]

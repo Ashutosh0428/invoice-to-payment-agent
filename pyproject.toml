@@ -1,0 +1,107 @@
+[tool.poetry]
+name = "invoice-to-payment-agent"
+version = "1.0.0"
+description = "Agentic invoice-to-payment automation: email ingestion, Docling extraction, 2-way/3-way PO matching, and ERP payment journal posting with human-in-the-loop exception handling."
+authors = ["Ashutosh Sharma <kapil.shrm1.kks@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [
+  { include = "invoice_agent", from = "src" },
+  { include = "mock_erp" },
+]
+
+[tool.poetry.dependencies]
+python = "~3.12"
+
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.32.0" }
+python-multipart = "^0.0.12"
+pydantic = "^2.9.0"
+pydantic-settings = "^2.6.0"
+httpx = "^0.27.2"
+tenacity = "^9.0.0"
+loguru = "^0.7.2"
+
+sqlmodel = "^0.0.22"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.36" }
+asyncpg = "^0.30.0"
+psycopg = { extras = ["binary", "pool"], version = "^3.2.3" }
+psycopg2-binary = "^2.9.10"
+pgvector = "^0.3.6"
+alembic = "^1.14.0"
+
+langgraph = "^0.2.45"
+langgraph-checkpoint-postgres = "^2.0.2"
+langchain-core = "^0.3.15"
+langchain-ollama = "^0.2.0"
+
+llama-index-core = "^0.11.20"
+llama-index-llms-ollama = "^0.3.4"
+llama-index-embeddings-ollama = "^0.3.1"
+llama-index-vector-stores-postgres = "^0.2.6"
+
+docling = "^2.7.0"
+
+msal = "^1.31.0"
+google-api-python-client = "^2.149.0"
+google-auth-oauthlib = "^1.2.1"
+
+arize-phoenix-otel = "^0.6.1"
+openinference-instrumentation-langchain = "^0.1.29"
+openinference-instrumentation-llama-index = "^3.0.3"
+opentelemetry-sdk = "^1.28.0"
+opentelemetry-exporter-otlp = "^1.28.0"
+
+rapidfuzz = "^3.10.1"
+python-dateutil = "^2.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^6.0.0"
+ruff = "^0.7.2"
+mypy = "^1.13.0"
+respx = "^0.21.1"
+ragas = "^0.2.6"
+datasets = "^3.1.0"
+pandas = "^2.2.3"
+reportlab = "^4.2.5"
+python-pptx = "^1.0.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "mock_erp", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "ASYNC", "RUF"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+exclude = "(alembic|tests)/"
+
+# SQLModel declares model fields with their Python type, so a column expression such as
+# `WorkflowRun.run_id == value` is inferred as `bool` rather than `ColumnElement[bool]`, and
+# `created_at.desc()` as a datetime method. There is no SQLModel mypy plugin to correct this,
+# so the query layer waives exactly those codes rather than carrying an inline ignore per query.
+[[tool.mypy.overrides]]
+module = "invoice_agent.db.repository"
+disable_error_code = ["arg-type", "attr-defined", "func-returns-value"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["integration: requires the docker compose stack (postgres, ollama, mock-erp)"]
+
+[tool.coverage.run]
+source = ["src/invoice_agent"]

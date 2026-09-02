@@ -1,0 +1,6 @@
+{
+  "message_id": "msg-price_variance",
+  "sender": "ap@fabrikam.example.com",
+  "subject": "Invoice INV-2026-0872",
+  "body": "Please find attached Invoice INV-2026-0872."
+}

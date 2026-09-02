@@ -1,0 +1,6 @@
+{
+  "message_id": "msg-remittance_exact",
+  "sender": "ar@globex.example.com",
+  "subject": "Remittance advice REM-2026-0042",
+  "body": "Please find attached Remittance advice REM-2026-0042."
+}

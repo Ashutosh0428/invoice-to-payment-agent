@@ -1,0 +1,305 @@
+{
+  "invoices": [
+    {
+      "id": "clean_three_way",
+      "file": "INV-2026-0871_contoso.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0871",
+        "invoice_date": "2026-07-28",
+        "due_date": "2026-08-27",
+        "purchase_order_number": "PO-4500001",
+        "vendor_name": "Contoso Supplies GmbH",
+        "vendor_tax_id": "DE811907980",
+        "vendor_iban": "DE89370400440532013000",
+        "currency": "EUR",
+        "subtotal": "10730.00",
+        "tax_amount": "2038.70",
+        "total_amount": "12768.70",
+        "payment_terms": "NET30",
+        "line_count": 2
+      },
+      "line_items": [
+        {
+          "po_line_number": 10,
+          "material_code": "MAT-A100",
+          "description": "Steel bracket, galvanised, 120mm",
+          "quantity": "500",
+          "unit_price": "14.50"
+        },
+        {
+          "po_line_number": 20,
+          "material_code": "MAT-A210",
+          "description": "Hex bolt M12x60 stainless",
+          "quantity": "1200",
+          "unit_price": "2.90"
+        }
+      ],
+      "expected": {
+        "outcome": "matched",
+        "match_type": "three_way",
+        "exceptions": [],
+        "straight_through": true
+      }
+    },
+    {
+      "id": "price_variance",
+      "file": "INV-2026-0872_fabrikam.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0872",
+        "invoice_date": "2026-07-30",
+        "due_date": "2026-09-13",
+        "purchase_order_number": "PO-4500002",
+        "vendor_name": "Fabrikam Industrial AG",
+        "vendor_tax_id": "DE114203847",
+        "vendor_iban": "DE02120300000000202051",
+        "currency": "EUR",
+        "subtotal": "8820.00",
+        "tax_amount": "1675.80",
+        "total_amount": "10495.80",
+        "payment_terms": "NET45",
+        "line_count": 1
+      },
+      "line_items": [
+        {
+          "po_line_number": 10,
+          "material_code": "MAT-B400",
+          "description": "Hydraulic pump assembly HP-400",
+          "quantity": "12",
+          "unit_price": "735.00"
+        }
+      ],
+      "expected": {
+        "outcome": "exception",
+        "match_type": "three_way",
+        "exceptions": [
+          "price_variance",
+          "total_variance"
+        ],
+        "straight_through": false
+      }
+    },
+    {
+      "id": "goods_receipt_shortfall",
+      "file": "INV-2026-0873_northwind.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0873",
+        "invoice_date": "2026-08-01",
+        "due_date": "2026-08-31",
+        "purchase_order_number": "PO-4500003",
+        "vendor_name": "Northwind Logistics BV",
+        "vendor_tax_id": "NL004495445B01",
+        "vendor_iban": "NL91ABNA0417164300",
+        "currency": "EUR",
+        "subtotal": "6000.00",
+        "tax_amount": "1140.00",
+        "total_amount": "7140.00",
+        "payment_terms": "NET30",
+        "line_count": 1
+      },
+      "line_items": [
+        {
+          "po_line_number": 10,
+          "material_code": "SRV-FRT",
+          "description": "Road freight Rotterdam-Munich, per shipment",
+          "quantity": "30",
+          "unit_price": "200.00"
+        }
+      ],
+      "expected": {
+        "outcome": "exception",
+        "match_type": "three_way",
+        "exceptions": [
+          "missing_goods_receipt"
+        ],
+        "straight_through": false
+      }
+    },
+    {
+      "id": "clean_two_way",
+      "file": "INV-2026-0874_adventureworks.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0874",
+        "invoice_date": "2026-08-04",
+        "due_date": "2026-08-18",
+        "purchase_order_number": "PO-4500004",
+        "vendor_name": "Adventure Works Ltd",
+        "vendor_tax_id": "GB123456789",
+        "vendor_iban": "GB29NWBK60161331926819",
+        "currency": "EUR",
+        "subtotal": "3600.00",
+        "tax_amount": "684.00",
+        "total_amount": "4284.00",
+        "payment_terms": "NET14",
+        "line_count": 1
+      },
+      "line_items": [
+        {
+          "po_line_number": 10,
+          "material_code": "SRV-CONS",
+          "description": "SAP S/4HANA advisory, senior consultant day rate",
+          "quantity": "4",
+          "unit_price": "900.00"
+        }
+      ],
+      "expected": {
+        "outcome": "matched",
+        "match_type": "two_way",
+        "exceptions": [],
+        "straight_through": true
+      }
+    },
+    {
+      "id": "over_auto_post_ceiling",
+      "file": "INV-2026-0875_tailspin.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0875",
+        "invoice_date": "2026-08-06",
+        "due_date": "2026-10-05",
+        "purchase_order_number": "PO-4500005",
+        "vendor_name": "Tailspin Components SA",
+        "vendor_tax_id": "FR40303265045",
+        "vendor_iban": "FR1420041010050500013M02606",
+        "currency": "EUR",
+        "subtotal": "40290.00",
+        "tax_amount": "7655.10",
+        "total_amount": "47945.10",
+        "payment_terms": "NET60",
+        "line_count": 1
+      },
+      "line_items": [
+        {
+          "po_line_number": 10,
+          "material_code": "MAT-C900",
+          "description": "CNC machined housing, aluminium 6061",
+          "quantity": "340",
+          "unit_price": "118.50"
+        }
+      ],
+      "expected": {
+        "outcome": "exception",
+        "match_type": "three_way",
+        "exceptions": [
+          "over_auto_post_ceiling"
+        ],
+        "straight_through": false
+      }
+    },
+    {
+      "id": "missing_po_unknown_vendor",
+      "file": "INV-2026-0876_litware.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0876",
+        "invoice_date": "2026-08-08",
+        "due_date": "2026-09-07",
+        "purchase_order_number": null,
+        "vendor_name": "Litware Marketing Ltd",
+        "vendor_tax_id": "IE9825613N",
+        "vendor_iban": "IE29AIBK93115212345678",
+        "currency": "EUR",
+        "subtotal": "4500.00",
+        "tax_amount": "855.00",
+        "total_amount": "5355.00",
+        "payment_terms": "NET30",
+        "line_count": 1
+      },
+      "line_items": [
+        {
+          "po_line_number": 1,
+          "material_code": "-",
+          "description": "Trade fair stand design and production, Hannover Messe",
+          "quantity": "1",
+          "unit_price": "4500.00"
+        }
+      ],
+      "expected": {
+        "outcome": "exception",
+        "match_type": "non_po",
+        "exceptions": [
+          "missing_po",
+          "unknown_vendor"
+        ],
+        "straight_through": false
+      }
+    },
+    {
+      "id": "duplicate_submission",
+      "file": "INV-2026-0871_contoso_resubmission.pdf",
+      "fields": {
+        "invoice_number": "INV-2026-0871",
+        "invoice_date": "2026-08-11",
+        "due_date": "2026-08-27",
+        "purchase_order_number": "PO-4500001",
+        "vendor_name": "Contoso Supplies GmbH",
+        "vendor_tax_id": "DE811907980",
+        "vendor_iban": "DE89370400440532013000",
+        "currency": "EUR",
+        "subtotal": "10730.00",
+        "tax_amount": "2038.70",
+        "total_amount": "12768.70",
+        "payment_terms": "NET30",
+        "line_count": 2
+      },
+      "line_items": [
+        {
+          "po_line_number": 10,
+          "material_code": "MAT-A100",
+          "description": "Steel bracket, galvanised, 120mm",
+          "quantity": "500",
+          "unit_price": "14.50"
+        },
+        {
+          "po_line_number": 20,
+          "material_code": "MAT-A210",
+          "description": "Hex bolt M12x60 stainless",
+          "quantity": "1200",
+          "unit_price": "2.90"
+        }
+      ],
+      "expected": {
+        "outcome": "exception",
+        "match_type": "three_way",
+        "exceptions": [
+          "duplicate_invoice"
+        ],
+        "straight_through": false,
+        "requires_prior": "clean_three_way"
+      }
+    }
+  ],
+  "remittances": [
+    {
+      "id": "remittance_exact",
+      "file": "REM-2026-0042_globex.pdf",
+      "fields": {
+        "remittance_number": "REM-2026-0042",
+        "payment_date": "2026-08-29",
+        "customer_name": "Globex Manufacturing SE",
+        "currency": "EUR",
+        "bank_reference": "SEPA-CT-88213401",
+        "total_paid": "25650.00",
+        "advice_count": 2
+      },
+      "advices": [
+        {
+          "invoice_number": "SI-2026-0431",
+          "invoice_date": "2026-07-31",
+          "gross": "18400.00",
+          "deduction": "0.00",
+          "amount_paid": "18400.00"
+        },
+        {
+          "invoice_number": "SI-2026-0448",
+          "invoice_date": "2026-08-07",
+          "gross": "7250.00",
+          "deduction": "0.00",
+          "amount_paid": "7250.00"
+        }
+      ],
+      "expected": {
+        "applied_items": 2,
+        "residual": "0.00",
+        "straight_through": true
+      }
+    }
+  ]
+}

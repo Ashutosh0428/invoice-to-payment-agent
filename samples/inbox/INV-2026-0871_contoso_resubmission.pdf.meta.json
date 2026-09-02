@@ -1,0 +1,6 @@
+{
+  "message_id": "msg-duplicate_submission",
+  "sender": "ap@contoso.example.com",
+  "subject": "Invoice INV-2026-0871",
+  "body": "Please find attached Invoice INV-2026-0871."
+}

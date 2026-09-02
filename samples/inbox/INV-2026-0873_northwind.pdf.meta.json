@@ -1,0 +1,6 @@
+{
+  "message_id": "msg-goods_receipt_shortfall",
+  "sender": "ap@northwind.example.com",
+  "subject": "Invoice INV-2026-0873",
+  "body": "Please find attached Invoice INV-2026-0873."
+}

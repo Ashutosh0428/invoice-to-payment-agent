@@ -1,0 +1,6 @@
+{
+  "message_id": "msg-clean_two_way",
+  "sender": "ap@adventure.example.com",
+  "subject": "Invoice INV-2026-0874",
+  "body": "Please find attached Invoice INV-2026-0874."
+}
