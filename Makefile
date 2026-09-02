@@ -1,4 +1,4 @@
-.PHONY: help install up down logs migrate test lint typecheck check evaluate deck openapi samples clean
+.PHONY: help install up down logs migrate test lint typecheck check evaluate deck openapi samples scans clean
 
 help:
 	@grep -E '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -41,6 +41,9 @@ openapi:  ## Regenerate docs/openapi.json from the live app
 
 samples:  ## Regenerate the sample invoices
 	poetry run python scripts/generate_samples.py
+
+scans:  ## Make image-only scanned copies of the samples to exercise the OCR path
+	poetry run python scripts/make_scanned_samples.py
 
 clean:  ## Remove caches and build artifacts
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +

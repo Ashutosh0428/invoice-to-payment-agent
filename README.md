@@ -42,7 +42,8 @@ A vendor emails an invoice PDF to the AP shared mailbox. From there:
    the pipeline does not know or care where a document came from.
 2. **Parse.** Docling converts the PDF, image, HTML, or Office document to Markdown with
    OCR and table structure enabled, so a scanned invoice — the majority of real AP volume —
-   travels the same path as a native PDF.
+   travels the same path as a native PDF. That path is verified, not assumed: see
+   [scanned invoices](#scanned-invoices) below.
 3. **Extract.** A local Ollama model fills a strict Pydantic schema: header fields, vendor
    identifiers, totals, and line items. Every field carries its own confidence score.
 4. **Persist and de-duplicate.** The extraction is stored, then checked against prior runs
@@ -213,6 +214,33 @@ Seven sample invoices ship in `samples/inbox`, each with a `.meta.json` describi
 it arrived on. They cover a clean three-way match, a clean two-way match, a price variance,
 a goods-receipt shortfall, an unknown vendor with no PO, a duplicate resubmission, and an
 invoice above the auto-post ceiling.
+
+#### Scanned invoices
+
+The generated samples carry a clean text layer, which means a parser can read them without
+ever touching OCR — so they cannot prove the OCR path works. `scripts/make_scanned_samples.py`
+rasterises a sample, applies the degradation a real scan applies (a fraction of a degree of
+skew, sensor noise, softened edges, the grey cast of default scanner settings), and writes it
+back as a PDF holding nothing but that image.
+
+```bash
+poetry run python scripts/make_scanned_samples.py INV-2026-0873_northwind.pdf
+```
+
+The result has **no text layer at all** — 0 extractable characters, one embedded image — so
+Docling has to OCR it. Reproduced on `INV-2026-0873_northwind_scanned.pdf`, which is committed:
+
+| | Native PDF | Scanned copy |
+|---|---|---|
+| Extractable text characters | 654 | **0** |
+| Embedded images | 0 | 1 |
+| Parser that handled it | `docling` | `docling` |
+| Markdown produced | 1,174 chars | 1,662 chars |
+| Invoice number, PO, vendor, net, VAT, total | all recovered | **all recovered** |
+
+The scanned copies are not in the evaluation answer key, so they do not affect the reported
+extraction accuracy — they exist to demonstrate that the OCR branch runs and recovers the
+fields the match depends on.
 
 ```bash
 # Poll the local mailbox provider and process everything in it
