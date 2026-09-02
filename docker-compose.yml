@@ -1,0 +1,179 @@
+# ---------------------------------------------------------------------------
+# invoice-to-payment-agent - full local stack
+#
+#   docker compose up -d --build
+#
+# Startup order is enforced with health conditions rather than sleeps:
+# postgres must be accepting connections before migrations run, migrations must
+# finish before the API starts, and the Ollama models must be pulled before the
+# first extraction is attempted.
+# ---------------------------------------------------------------------------
+
+name: invoice-to-payment-agent
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: iap-postgres
+    environment:
+      POSTGRES_USER: ${INVOICE_AGENT_DB_USER:-invoice}
+      POSTGRES_PASSWORD: ${INVOICE_AGENT_DB_PASSWORD:-invoice}
+      POSTGRES_DB: ${INVOICE_AGENT_DB_NAME:-invoice_agent}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${INVOICE_AGENT_DB_USER:-invoice} -d ${INVOICE_AGENT_DB_NAME:-invoice_agent}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: iap-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+
+  # One-shot: pulls the chat and embedding models, then exits. The API waits for
+  # this to complete so the first invoice does not race a multi-gigabyte pull.
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: iap-ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        ollama pull ${INVOICE_AGENT_LLM_MODEL:-llama3.1:8b} &&
+        ollama pull ${INVOICE_AGENT_LLM_EMBEDDING_MODEL:-nomic-embed-text} &&
+        echo "models ready"
+    restart: "no"
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: iap-phoenix
+    ports:
+      - "${PHOENIX_UI_PORT:-6006}:6006"
+      - "${PHOENIX_GRPC_PORT:-4317}:4317"
+    environment:
+      PHOENIX_WORKING_DIR: /mnt/data
+    volumes:
+      - phoenix-data:/mnt/data
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:6006/healthz', timeout=3).status==200 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  mock-erp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iap-mock-erp
+    command: ["uvicorn", "mock_erp.main:app", "--host", "0.0.0.0", "--port", "8081"]
+    environment:
+      MOCK_ERP_API_KEY: ${MOCK_ERP_API_KEY:-mock-erp-key}
+      MOCK_ERP_COMPANY_CODE: ${MOCK_ERP_COMPANY_CODE:-1000}
+    ports:
+      - "${MOCK_ERP_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  # One-shot: brings the schema (and the pgvector extension) up to head.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iap-migrate
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      INVOICE_AGENT_DB_HOST: postgres
+      INVOICE_AGENT_DB_PORT: 5432
+      INVOICE_AGENT_DB_USER: ${INVOICE_AGENT_DB_USER:-invoice}
+      INVOICE_AGENT_DB_PASSWORD: ${INVOICE_AGENT_DB_PASSWORD:-invoice}
+      INVOICE_AGENT_DB_NAME: ${INVOICE_AGENT_DB_NAME:-invoice_agent}
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iap-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      ollama-init:
+        condition: service_completed_successfully
+      mock-erp:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      INVOICE_AGENT_ENVIRONMENT: ${INVOICE_AGENT_ENVIRONMENT:-local}
+      INVOICE_AGENT_AUTH_ENABLED: ${INVOICE_AGENT_AUTH_ENABLED:-false}
+      INVOICE_AGENT_API_TOKEN: ${INVOICE_AGENT_API_TOKEN:-local-dev-token}
+      INVOICE_AGENT_DOCUMENT_STORE: /app/data/documents
+
+      INVOICE_AGENT_DB_HOST: postgres
+      INVOICE_AGENT_DB_PORT: 5432
+      INVOICE_AGENT_DB_USER: ${INVOICE_AGENT_DB_USER:-invoice}
+      INVOICE_AGENT_DB_PASSWORD: ${INVOICE_AGENT_DB_PASSWORD:-invoice}
+      INVOICE_AGENT_DB_NAME: ${INVOICE_AGENT_DB_NAME:-invoice_agent}
+
+      INVOICE_AGENT_LLM_BASE_URL: http://ollama:11434
+      INVOICE_AGENT_LLM_MODEL: ${INVOICE_AGENT_LLM_MODEL:-llama3.1:8b}
+      INVOICE_AGENT_LLM_EMBEDDING_MODEL: ${INVOICE_AGENT_LLM_EMBEDDING_MODEL:-nomic-embed-text}
+      INVOICE_AGENT_LLM_EMBEDDING_DIM: ${INVOICE_AGENT_LLM_EMBEDDING_DIM:-768}
+      INVOICE_AGENT_LLM_REQUEST_TIMEOUT: ${INVOICE_AGENT_LLM_REQUEST_TIMEOUT:-180}
+
+      INVOICE_AGENT_ERP_BASE_URL: http://mock-erp:8081
+      INVOICE_AGENT_ERP_API_KEY: ${MOCK_ERP_API_KEY:-mock-erp-key}
+
+      INVOICE_AGENT_MAILBOX_PROVIDER: ${INVOICE_AGENT_MAILBOX_PROVIDER:-local}
+      INVOICE_AGENT_MAILBOX_LOCAL_ROOT: /app/samples/inbox
+
+      INVOICE_AGENT_OBS_ENABLED: ${INVOICE_AGENT_OBS_ENABLED:-true}
+      INVOICE_AGENT_OBS_PHOENIX_ENDPOINT: http://phoenix:6006/v1/traces
+      INVOICE_AGENT_OBS_PROJECT_NAME: invoice-to-payment-agent
+    volumes:
+      - document-store:/app/data/documents
+      - ./samples:/app/samples
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/v1/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  ollama-models:
+  phoenix-data:
+  document-store:

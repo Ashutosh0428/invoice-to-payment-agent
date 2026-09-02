@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, types and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.4
+
+      - name: Cache the virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py312-${{ hashFiles('poetry.lock', 'pyproject.toml') }}
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry install --no-interaction
+
+      - name: Lint
+        run: poetry run ruff check .
+
+      - name: Format check
+        run: poetry run ruff format --check .
+
+      - name: Type check
+        run: poetry run mypy src mock_erp
+
+      - name: Test
+        run: poetry run pytest -q --cov --cov-report=term-missing
+
+  docker:
+    name: Docker build and compose validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate the compose file
+        run: docker compose config --quiet
+
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: invoice-to-payment-agent:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Mock ERP answers on a bare container
+        run: |
+          docker run -d --name mock-erp -p 8081:8081 invoice-to-payment-agent:ci \
+            uvicorn mock_erp.main:app --host 0.0.0.0 --port 8081
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:8081/health > /dev/null; then
+              echo "mock ERP healthy after ${attempt} attempts"
+              curl -s http://localhost:8081/health
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "mock ERP did not become healthy"
+          docker logs mock-erp
+          exit 1
