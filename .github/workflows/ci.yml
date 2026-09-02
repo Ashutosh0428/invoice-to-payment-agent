@@ -53,13 +53,17 @@ jobs:
   docker:
     name: Docker build and compose validation
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Docling pulls torch and prefetches its layout models, so a cold build is slow.
+    timeout-minutes: 50
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Validate the compose file
         run: docker compose config --quiet
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build the image
         uses: docker/build-push-action@v6
@@ -70,6 +74,7 @@ jobs:
           tags: invoice-to-payment-agent:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
 
       - name: Mock ERP answers on a bare container
         run: |
